@@ -22,8 +22,8 @@
 
 ## Setup Instructions
 ```bash
-git clone https://github.com/<your-username>/studymate-hackathon.git
-cd studymate-hackathon
+git clone https://github.com/<your-username>/studymate.git
+cd studymate
 python -m venv venv
 source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -36,5 +36,5 @@ python app.py               # launch the Gradio app
 <!-- Add your Hugging Face Spaces / Streamlit Cloud link here -->
 
 ## Team
-- Dhanya — RAG & document ingestion
-- Vanshi — Agent, vision, UI & deployment
+- Dhanya — RAG, document ingestion & deployment
+- Vanshi — Agent, vision & UI
