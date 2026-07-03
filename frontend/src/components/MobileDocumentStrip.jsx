@@ -32,8 +32,13 @@ export default function MobileDocumentStrip({ documents = [], activeDocId, onSel
               {doc.status && (
                 <span
                   className={`absolute top-1 right-1 w-2 h-2 rounded-full ${
-                    doc.status === 'ready' ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'
+                    doc.status === 'ready'
+                      ? 'bg-emerald-400'
+                      : doc.status === 'error'
+                      ? 'bg-rose-500'
+                      : 'bg-amber-400 animate-pulse'
                   }`}
+                  title={doc.status === 'ready' ? 'Ready' : doc.status === 'error' ? 'Upload failed' : 'Processing…'}
                 />
               )}
               <div className="w-full h-16 bg-tertiary-container/20 rounded-sm mb-2 flex items-center justify-center">

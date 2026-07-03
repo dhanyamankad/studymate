@@ -29,9 +29,13 @@ export default function DocumentCard({ name, type = 'pdf', active = false, index
         {status && (
           <span
             className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
-              status === 'ready' ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'
+              status === 'ready'
+                ? 'bg-emerald-400'
+                : status === 'error'
+                ? 'bg-rose-500'
+                : 'bg-amber-400 animate-pulse'
             }`}
-            title={status === 'ready' ? 'Ready' : 'Processing…'}
+            title={status === 'ready' ? 'Ready' : status === 'error' ? 'Upload failed' : 'Processing…'}
           />
         )}
         <div className="w-full h-24 bg-tertiary-container/20 rounded-sm mb-2 flex items-center justify-center">

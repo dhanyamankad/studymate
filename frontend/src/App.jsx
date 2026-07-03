@@ -67,10 +67,11 @@ export default function App() {
   const [documents, setDocuments] = useState(INITIAL_DOCS)
 
   // Called by UploadZone (via Sidebar) whenever the user drops/picks files.
-  // Tries Vanshi's real /upload endpoint per file if VITE_API_URL is set;
-  // on any failure (not configured, network error, timeout, bad status)
-  // falls back to the fake processing->ready timeout so a doc never gets
-  // stuck if the backend is flaky or not running yet.
+  // If VITE_API_URL isn't set, uses the fake processing->ready timeout
+  // (expected/normal — no backend to call yet). If it IS set, tries the
+  // real /upload endpoint and shows a genuine 'error' status on failure
+  // instead of masking it — a real, configured backend failing is a bug
+  // worth seeing during integration testing, not something to fake past.
   function handleFilesAdded(files) {
     const newDocs = files.map((file) => ({
       id: crypto.randomUUID(),
@@ -88,13 +89,17 @@ export default function App() {
           setDocuments((prev) =>
             prev.map((d) => (d.id === doc.id ? { ...d, status: 'ready' } : d))
           )
-          return
         } catch (err) {
-          console.warn(`[studymate] upload of "${doc.name}" failed, falling back to fake ready:`, err.message)
-          // fall through to the fake timeout below
+          console.warn(`[studymate] upload of "${doc.name}" failed:`, err.message)
+          setDocuments((prev) =>
+            prev.map((d) => (d.id === doc.id ? { ...d, status: 'error' } : d))
+          )
         }
+        return
       }
 
+      // No backend configured at all — this is the expected pre-integration
+      // state, so fake the ready transition rather than showing an error.
       setTimeout(() => {
         setDocuments((prev) =>
           prev.map((d) => (d.id === doc.id ? { ...d, status: 'ready' } : d))
