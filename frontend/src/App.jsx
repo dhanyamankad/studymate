@@ -6,10 +6,10 @@ import EmptyState from './components/EmptyState'
 import InputBar from './components/InputBar'
 import SourcesPanel from './components/SourcesPanel'
 
-const DOCS = [
-  { id: 'doc1', name: 'Lecture Notes.pdf', type: 'pdf' },
-  { id: 'doc2', name: 'Ref1.jpg', type: 'image' },
-  { id: 'doc3', name: 'Quantum_Ch1.pdf', type: 'article' },
+const INITIAL_DOCS = [
+  { id: 'doc1', name: 'Lecture Notes.pdf', type: 'pdf', status: 'ready' },
+  { id: 'doc2', name: 'Ref1.jpg', type: 'image', status: 'ready' },
+  { id: 'doc3', name: 'Quantum_Ch1.pdf', type: 'article', status: 'ready' },
 ]
 
 const SOURCES = [
@@ -104,6 +104,30 @@ export default function App() {
   const [thinking, setThinking] = useState(false)
   const [exchange, setExchange] = useState(DEMO_EXCHANGE)
   const [showEmpty, setShowEmpty] = useState(false)
+  const [documents, setDocuments] = useState(INITIAL_DOCS)
+
+  // Called by UploadZone (via Sidebar) whenever the user drops/picks files.
+  // TEMP: fakes the processing -> ready transition with a timeout. Once the
+  // FastAPI /upload endpoint exists, replace the setTimeout block below with
+  // a real fetch(..., { method: 'POST', body: formData }) call per file, and
+  // flip status to 'ready' only after that call actually succeeds.
+  function handleFilesAdded(files) {
+    const newDocs = files.map((file) => ({
+      id: crypto.randomUUID(),
+      name: file.name,
+      type: file.type === 'application/pdf' ? 'pdf' : 'image',
+      status: 'processing',
+    }))
+    setDocuments((prev) => [...prev, ...newDocs])
+
+    newDocs.forEach((doc) => {
+      setTimeout(() => {
+        setDocuments((prev) =>
+          prev.map((d) => (d.id === doc.id ? { ...d, status: 'ready' } : d))
+        )
+      }, 1200 + Math.random() * 800)
+    })
+  }
 
   function handleAsk(question) {
     setActiveTab('Focus')
@@ -124,9 +148,10 @@ export default function App() {
   return (
     <div className="flex h-screen w-full relative overflow-hidden">
       <Sidebar
-        documents={DOCS}
+        documents={documents}
         activeDocId={activeDocId}
         onSelectDocument={setActiveDocId}
+        onFilesAdded={handleFilesAdded}
         onNewResearch={() => {
           setShowEmpty(false)
           setActiveTab('Focus')
@@ -154,7 +179,7 @@ export default function App() {
         </header>
 
         <MobileDocumentStrip
-          documents={DOCS}
+          documents={documents}
           activeDocId={activeDocId}
           onSelectDocument={setActiveDocId}
         />

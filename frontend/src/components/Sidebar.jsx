@@ -1,6 +1,7 @@
 import DocumentCard from './DocumentCard'
+import UploadZone from './UploadZone'
 
-export default function Sidebar({ documents = [], activeDocId, onSelectDocument, onNewResearch }) {
+export default function Sidebar({ documents = [], activeDocId, onSelectDocument, onNewResearch, onFilesAdded }) {
   return (
     <aside className="w-64 h-full bg-surface border-r border-outline-variant/10 flex flex-col py-8 px-4 z-20 shrink-0 hidden md:flex">
       <div className="mb-10 px-2">
@@ -10,6 +11,10 @@ export default function Sidebar({ documents = [], activeDocId, onSelectDocument,
         <p className="font-label-mono text-label-mono text-on-surface-variant mt-1 uppercase">
           Midnight Session
         </p>
+      </div>
+
+      <div className="px-2 mb-6">
+        <UploadZone onFilesAdded={onFilesAdded} />
       </div>
 
       <nav className="flex-1 space-y-6 overflow-y-auto">
@@ -23,6 +28,7 @@ export default function Sidebar({ documents = [], activeDocId, onSelectDocument,
                 key={doc.id}
                 name={doc.name}
                 type={doc.type}
+                status={doc.status}
                 index={i}
                 active={doc.id === activeDocId}
                 onClick={() => onSelectDocument?.(doc.id)}
