@@ -34,6 +34,47 @@ function isValidExchangeShape(data) {
 }
 
 /**
+ * Uploads a single file to POST {VITE_API_URL}/upload as multipart form
+ * data. Resolves to the backend's response (expected to at least confirm
+ * the doc is stored/processed) or throws on any failure — network error,
+ * timeout, non-2xx status — so the caller can fall back to the fake
+ * processing->ready timeout instead of leaving the doc stuck forever.
+ */
+export async function uploadFile(file) {
+  if (!isBackendConfigured()) {
+    throw new Error('VITE_API_URL is not set')
+  }
+
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
+  const formData = new FormData()
+  formData.append('file', file)
+
+  let response
+  try {
+    response = await fetch(`${API_URL}/upload`, {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    })
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error(`Upload timed out after ${REQUEST_TIMEOUT_MS}ms`)
+    }
+    throw new Error(`Upload failed: ${err.message}`)
+  } finally {
+    clearTimeout(timeoutId)
+  }
+
+  if (!response.ok) {
+    throw new Error(`Upload returned ${response.status} ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
+/**
  * Calls POST {VITE_API_URL}/query with { question, webSearchEnabled }.
  * Resolves to an exchange object matching pickMockExchange's return shape,
  * or resolves to null if the backend explicitly signals "no grounded

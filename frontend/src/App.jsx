@@ -6,7 +6,7 @@ import EmptyState from './components/EmptyState'
 import InputBar from './components/InputBar'
 import SourcesPanel from './components/SourcesPanel'
 import { DEMO_EXCHANGE, pickMockExchange } from './mockData'
-import { queryBackend, isBackendConfigured } from './api'
+import { queryBackend, uploadFile, isBackendConfigured } from './api'
 
 const INITIAL_DOCS = [
   { id: 'doc1', name: 'Lecture Notes.pdf', type: 'pdf', status: 'ready' },
@@ -67,20 +67,34 @@ export default function App() {
   const [documents, setDocuments] = useState(INITIAL_DOCS)
 
   // Called by UploadZone (via Sidebar) whenever the user drops/picks files.
-  // TEMP: fakes the processing -> ready transition with a timeout. Once the
-  // FastAPI /upload endpoint exists, replace the setTimeout block below with
-  // a real fetch(..., { method: 'POST', body: formData }) call per file, and
-  // flip status to 'ready' only after that call actually succeeds.
+  // Tries Vanshi's real /upload endpoint per file if VITE_API_URL is set;
+  // on any failure (not configured, network error, timeout, bad status)
+  // falls back to the fake processing->ready timeout so a doc never gets
+  // stuck if the backend is flaky or not running yet.
   function handleFilesAdded(files) {
     const newDocs = files.map((file) => ({
       id: crypto.randomUUID(),
+      file,
       name: file.name,
       type: file.type === 'application/pdf' ? 'pdf' : 'image',
       status: 'processing',
     }))
     setDocuments((prev) => [...prev, ...newDocs])
 
-    newDocs.forEach((doc) => {
+    newDocs.forEach(async (doc) => {
+      if (isBackendConfigured()) {
+        try {
+          await uploadFile(doc.file)
+          setDocuments((prev) =>
+            prev.map((d) => (d.id === doc.id ? { ...d, status: 'ready' } : d))
+          )
+          return
+        } catch (err) {
+          console.warn(`[studymate] upload of "${doc.name}" failed, falling back to fake ready:`, err.message)
+          // fall through to the fake timeout below
+        }
+      }
+
       setTimeout(() => {
         setDocuments((prev) =>
           prev.map((d) => (d.id === doc.id ? { ...d, status: 'ready' } : d))
