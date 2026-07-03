@@ -30,6 +30,12 @@
 
 const API_URL = import.meta.env.VITE_API_URL
 const REQUEST_TIMEOUT_MS = 15000
+// Image uploads go through a Gemini vision call + a separate embedding
+// call (see backend/ingestion.py + rag.py) before they return — on
+// Render's free-tier CPU that routinely takes 20-40s, well past a plain
+// text query's budget. Uploads get their own longer ceiling so slow-but-
+// working ingestion doesn't get killed as if it were a hung connection.
+const UPLOAD_TIMEOUT_MS = 60000
 
 export function isBackendConfigured() {
   return Boolean(API_URL)
@@ -61,7 +67,7 @@ export async function uploadFile(file) {
   }
 
   const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+  const timeoutId = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS)
 
   const formData = new FormData()
   formData.append('file', file)
@@ -75,7 +81,7 @@ export async function uploadFile(file) {
     })
   } catch (err) {
     if (err.name === 'AbortError') {
-      throw new Error(`Upload timed out after ${REQUEST_TIMEOUT_MS}ms`)
+      throw new Error(`Upload timed out after ${UPLOAD_TIMEOUT_MS}ms`)
     }
     throw new Error(`Upload failed: ${err.message}`)
   } finally {
