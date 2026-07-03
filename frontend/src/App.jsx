@@ -5,14 +5,13 @@ import AnswerCard from './components/AnswerCard'
 import EmptyState from './components/EmptyState'
 import InputBar from './components/InputBar'
 import SourcesPanel from './components/SourcesPanel'
-import { DEMO_EXCHANGE, pickMockExchange } from './mockData'
+import { pickMockExchange } from './mockData'
 import { queryBackend, uploadFile, isBackendConfigured } from './api'
 
-const INITIAL_DOCS = [
-  { id: 'doc1', name: 'Lecture Notes.pdf', type: 'pdf', status: 'ready' },
-  { id: 'doc2', name: 'Ref1.jpg', type: 'image', status: 'ready' },
-  { id: 'doc3', name: 'Quantum_Ch1.pdf', type: 'article', status: 'ready' },
-]
+// Real documents come from actual uploads (see handleFilesAdded) — start
+// empty so the sidebar reflects what's really been uploaded this session,
+// not a hardcoded demo set left over from early UI development.
+const INITIAL_DOCS = []
 
 const SOURCES = [
   {
@@ -62,8 +61,12 @@ export default function App() {
   const [activeDocId, setActiveDocId] = useState('doc1')
   const [webSearchEnabled, setWebSearchEnabled] = useState(false)
   const [thinking, setThinking] = useState(false)
-  const [exchange, setExchange] = useState(DEMO_EXCHANGE)
-  const [showEmpty, setShowEmpty] = useState(false)
+  // Start on the real empty state, not the hardcoded demo answer — the
+  // demo exchange was only ever meant as an early UI placeholder, and
+  // showing it on load now that the real backend is wired up makes a
+  // genuine first load look like a faked/mocked response.
+  const [exchange, setExchange] = useState(null)
+  const [showEmpty, setShowEmpty] = useState(true)
   const [documents, setDocuments] = useState(INITIAL_DOCS)
   // Stable per-session id, required by Vanshi's backend to key conversation
   // memory (backend/rag.py: SESSIONS dict, keyed by this). Generated once on
@@ -162,9 +165,9 @@ export default function App() {
         onSelectDocument={setActiveDocId}
         onFilesAdded={handleFilesAdded}
         onNewResearch={() => {
-          setShowEmpty(false)
+          setShowEmpty(true)
           setActiveTab('Focus')
-          setExchange(DEMO_EXCHANGE)
+          setExchange(null)
           setSessionId(crypto.randomUUID())
         }}
       />
