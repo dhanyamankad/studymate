@@ -5,6 +5,7 @@ import AnswerCard from './components/AnswerCard'
 import EmptyState from './components/EmptyState'
 import InputBar from './components/InputBar'
 import SourcesPanel from './components/SourcesPanel'
+import { DEMO_EXCHANGE, pickMockExchange } from './mockData'
 
 const INITIAL_DOCS = [
   { id: 'doc1', name: 'Lecture Notes.pdf', type: 'pdf', status: 'ready' },
@@ -46,48 +47,6 @@ const SOURCES = [
     sourceLabel: 'WEB SOURCE',
   },
 ]
-
-const DEMO_EXCHANGE = {
-  question: 'What are the core principles of quantum entanglement?',
-  answer: [
-    'Quantum entanglement is a physical phenomenon that occurs when a group of particles are generated, interact, or share spatial proximity in a way such that the quantum state of each particle of the group cannot be described independently of the state of the others, including when the particles are separated by a large distance.',
-    'At its core, entanglement implies that measurements of physical properties such as position, momentum, spin, and polarization performed on entangled particles can be found to be perfectly correlated.',
-    'This phenomenon was famously referred to by Albert Einstein as "spooky action at a distance." According to the Copenhagen interpretation of quantum mechanics, their shared state is indeterminate until a measurement is made.',
-  ],
-  citations: [
-    {
-      type: 'pdf',
-      label: 'Lecture Notes.pdf',
-      meta: 'PAGE 4',
-      excerpt:
-        '"...measurements of position, momentum, spin, and polarization performed on entangled particles are found to be perfectly correlated, regardless of separation distance."',
-    },
-    {
-      type: 'pdf',
-      label: 'Quantum_Ch1.pdf',
-      meta: 'SEC 2.3',
-      excerpt:
-        '"Einstein referred to this correlation as \'spooky action at a distance,\' expressing discomfort with its non-local implications."',
-    },
-    {
-      type: 'web',
-      label: 'en.wikipedia.org',
-      meta: 'LIVE SOURCE SYNC',
-      excerpt:
-        '"Under the Copenhagen interpretation, the shared quantum state remains indeterminate until a measurement is performed on one of the particles."',
-    },
-  ],
-  reasoningSteps: [
-    { label: 'INTERNAL REPOSITORY', text: 'Checked Lecture Notes.pdf' },
-    { label: 'ANALYSIS', text: 'Found direct match, cross-referencing Quantum_Ch1.pdf' },
-    {
-      label: 'EXTERNAL SEARCH',
-      text: 'Verified terminology against en.wikipedia.org',
-      active: true,
-      source: "SOURCE: 'Spooky action at a distance' — Einstein-Podolsky-Rosen paradox, 1935.",
-    },
-  ],
-}
 
 const NAV_TABS = ['Focus', 'Resources', 'Notes']
 
@@ -134,13 +93,16 @@ export default function App() {
     setShowEmpty(false)
     setThinking(true)
 
-    // Placeholder — replace with a real call to the FastAPI /query endpoint.
+    // Placeholder — replace this whole setTimeout block with a real fetch()
+    // call to the FastAPI /query endpoint once it exists. Keep the same
+    // shape: either a matching exchange object, or null -> EmptyState.
     setTimeout(() => {
       setThinking(false)
-      if (question.toLowerCase().includes('unknown')) {
+      const matched = pickMockExchange(question, webSearchEnabled)
+      if (!matched) {
         setShowEmpty(true)
       } else {
-        setExchange({ ...DEMO_EXCHANGE, question })
+        setExchange({ ...matched, question })
       }
     }, 1400)
   }
