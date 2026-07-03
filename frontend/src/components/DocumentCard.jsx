@@ -11,7 +11,7 @@ const ROTATIONS = ['-rotate-2', 'rotate-3', '-rotate-1', 'rotate-2', '-rotate-3'
  * `active` lifts the card and adds an amber edge glow, representing the
  * source currently being referenced by the AI's answer.
  */
-export default function DocumentCard({ name, type = 'pdf', active = false, index = 0, onClick }) {
+export default function DocumentCard({ name, type = 'pdf', active = false, index = 0, onClick, status }) {
   const rotation = ROTATIONS[index % ROTATIONS.length]
 
   return (
@@ -26,6 +26,18 @@ export default function DocumentCard({ name, type = 'pdf', active = false, index
           active ? 'rotate-0 -translate-y-1 ring-1 ring-primary/60' : `${rotation} hover:rotate-0`
         } transition-transform duration-300 border border-outline-variant/30 overflow-hidden`}
       >
+        {status && (
+          <span
+            className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
+              status === 'ready'
+                ? 'bg-emerald-400'
+                : status === 'error'
+                ? 'bg-rose-500'
+                : 'bg-amber-400 animate-pulse'
+            }`}
+            title={status === 'ready' ? 'Ready' : status === 'error' ? 'Upload failed' : 'Processing…'}
+          />
+        )}
         <div className="w-full h-24 bg-tertiary-container/20 rounded-sm mb-2 flex items-center justify-center">
           <span className="material-symbols-outlined text-primary/40 text-4xl">
             {ICONS[type] ?? ICONS.article}

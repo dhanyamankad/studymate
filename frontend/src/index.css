@@ -14,11 +14,18 @@ body {
   background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');
 }
 
-/* Torn-paper edge mask for citation badges */
+/* Torn-paper edge — jagged notches top and bottom, solid/visible everywhere
+   else. (Previously used mask-image with mask-repeat: repeat-x, which only
+   painted a 10px strip and left the rest of the element masked to fully
+   transparent — hid all badge content below the top edge. clip-path avoids
+   that: it's a single shape, so the whole middle band stays fully opaque.) */
 .torn-edge {
-  mask-image: url("data:image/svg+xml,%3Csvg width='100' height='10' viewBox='0 0 100 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 L5 8 L10 9 L15 7 L20 10 L25 8 L30 9 L35 7 L40 10 L45 8 L50 9 L55 7 L60 10 L65 8 L70 9 L75 7 L80 10 L85 8 L90 9 L95 7 L100 10 V0 H0 Z' fill='black'/%3E%3C/svg%3E");
-  mask-size: 100px 10px;
-  mask-repeat: repeat-x;
+  clip-path: polygon(
+    0% 4%, 5% 1%, 10% 5%, 15% 2%, 20% 4%, 25% 1%, 30% 5%, 35% 2%, 40% 4%, 45% 1%,
+    50% 5%, 55% 2%, 60% 4%, 65% 1%, 70% 5%, 75% 2%, 80% 4%, 85% 1%, 90% 5%, 95% 2%, 100% 4%,
+    100% 96%, 95% 99%, 90% 95%, 85% 98%, 80% 96%, 75% 99%, 70% 95%, 65% 98%, 60% 96%, 55% 99%,
+    50% 95%, 45% 98%, 40% 96%, 35% 99%, 30% 95%, 25% 98%, 20% 96%, 15% 99%, 10% 95%, 5% 98%, 0% 96%
+  );
 }
 
 /* Fountain-pen ink line under the chat input, bleeds outward on focus */

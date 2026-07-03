@@ -63,7 +63,15 @@ export default {
         DEFAULT: '0.125rem',
         lg: '0.25rem',
         xl: '0.5rem',
-        full: '0.75rem',
+        // NOTE: intentionally not overriding `full` here. Tailwind's default
+        // (9999px) is what makes rounded-full render as a true circle on
+        // larger elements (GlowOrb, EmptyState icon, InputBar send button).
+        // Small pill/dot elements (status dots, the web-search toggle) still
+        // render correctly with the true default, since border-radius clamps
+        // to half the element's own size regardless of how large the radius
+        // value is — a previous override here (0.75rem) broke every large
+        // circular element while only "coincidentally" still working for
+        // small ones.
       },
       spacing: {
         'component-padding': '1.5rem',
