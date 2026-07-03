@@ -46,6 +46,8 @@ npm run dev
 ### Backend
 ```bash
 cd backend
+git clone https://github.com/<your-username>/studymate.git
+cd studymate
 python -m venv venv
 venv\Scripts\activate      # Windows; use `source venv/bin/activate` on macOS/Linux
 pip install -r requirements.txt
@@ -81,3 +83,6 @@ the frontend renders the zero-hallucination state rather than a hallucinated ans
 - `main` — stable/demo-ready code only
 - `dhanya` — frontend work
 - `vanshi` — backend work
+## Team
+- Dhanya — RAG, document ingestion & deployment
+- Vanshi — Agent, vision & UI
