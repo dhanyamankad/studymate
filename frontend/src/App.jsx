@@ -144,9 +144,10 @@ export default function App() {
           documents={documents}
           activeDocId={activeDocId}
           onSelectDocument={setActiveDocId}
+          onFilesAdded={handleFilesAdded}
         />
 
-        <div className="flex-1 overflow-y-auto pb-48">
+        <div className="flex-1 overflow-y-auto pb-64 md:pb-48">
           {activeTab === 'Resources' ? (
             <SourcesPanel
               sources={SOURCES}
