@@ -6,6 +6,7 @@ import EmptyState from './components/EmptyState'
 import InputBar from './components/InputBar'
 import SourcesPanel from './components/SourcesPanel'
 import { DEMO_EXCHANGE, pickMockExchange } from './mockData'
+import { queryBackend, isBackendConfigured } from './api'
 
 const INITIAL_DOCS = [
   { id: 'doc1', name: 'Lecture Notes.pdf', type: 'pdf', status: 'ready' },
@@ -88,14 +89,33 @@ export default function App() {
     })
   }
 
-  function handleAsk(question) {
+  async function handleAsk(question) {
     setActiveTab('Focus')
     setShowEmpty(false)
     setThinking(true)
 
-    // Placeholder — replace this whole setTimeout block with a real fetch()
-    // call to the FastAPI /query endpoint once it exists. Keep the same
-    // shape: either a matching exchange object, or null -> EmptyState.
+    // If VITE_API_URL is set, try Vanshi's real /query endpoint first.
+    // Any failure — not configured, network error, timeout, bad shape —
+    // falls through to the mock so the demo never breaks on a flaky or
+    // half-built backend. Only a successful, correctly-shaped response
+    // ever displays as if it were real.
+    if (isBackendConfigured()) {
+      try {
+        const result = await queryBackend(question, webSearchEnabled)
+        setThinking(false)
+        if (!result) {
+          setShowEmpty(true)
+        } else {
+          setExchange({ ...result, question })
+        }
+        return
+      } catch (err) {
+        console.warn('[studymate] backend query failed, falling back to mock:', err.message)
+        // fall through to mock below
+      }
+    }
+
+    // Mock path — used when no backend is configured yet, or as a fallback.
     setTimeout(() => {
       setThinking(false)
       const matched = pickMockExchange(question, webSearchEnabled)
