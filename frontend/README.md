@@ -6,6 +6,8 @@ rebuilt component-by-component to match the original design system exactly).
 
 ## Run it
 
+**Requires Node 18+.**
+
 ```bash
 npm install
 cp .env.example .env.local   # set VITE_API_URL to your backend (see below)
