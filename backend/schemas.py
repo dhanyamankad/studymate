@@ -1,5 +1,5 @@
 """
-schemas.py — THE shared citation contract with Dhanya's frontend.
+schemas.py — THE shared citation contract with the frontend.
 
 Keep this in exact sync with the JSON shape documented in the project brief.
 Nothing outside this file should construct the response payload by hand —
