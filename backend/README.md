@@ -5,6 +5,8 @@ enforces the citation JSON contract structurally via Pydantic.
 
 ## Setup
 
+**Requires Python 3.14+.**
+
 ```bash
 cd backend
 python3 -m venv venv && source venv/bin/activate
@@ -25,9 +27,8 @@ uvicorn main:app --reload --port 8000
 - Health check: `GET http://localhost:8000/health`
 - Interactive docs: `http://localhost:8000/docs`
 
-Send Dhanya `http://localhost:8000` (or the Render URL once deployed) so
-she can point `App.jsx`'s fetch calls at it instead of the mocked
-`setTimeout`.
+Set `VITE_API_URL` in the frontend's `.env.local` to this URL (or the Render URL
+once deployed) to connect the frontend to this backend.
 
 ## Endpoints
 
@@ -51,8 +52,9 @@ she can point `App.jsx`'s fetch calls at it instead of the mocked
 ## Notes / known trade-offs
 
 - Session memory is a plain in-memory dict (`rag.py: SESSIONS`) — resets
-  on every Render restart/redeploy. Fine for a hackathon demo; swap for
-  Redis if there's time.
+  on every Render restart/redeploy. Fine for a single instance; swap for
+  Redis if you need it to persist across restarts or scale to multiple
+  instances.
 - Chunking is a hand-rolled character splitter (`ingestion.py`). Swap in
   LangChain's `RecursiveCharacterTextSplitter` if you want smarter
   sentence/paragraph boundaries.

@@ -28,8 +28,9 @@ _COLLECTION_NAME = "studymate_chunks"
 EMBED_MODEL = "gemini-embedding-001"
 LLM_MODEL = "gemini-2.5-flash"
 
-# in-memory session store, keyed by session_id -> list of {role, content}
-# zero cost, fine for hackathon scope; swap for Redis if there's spare time
+# In-memory session store, keyed by session_id -> list of {role, content}.
+# Fine for a single instance; swap for Redis for multi-instance/persistent
+# deployments.
 SESSIONS: Dict[str, List[Dict[str, str]]] = {}
 
 

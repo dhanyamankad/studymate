@@ -42,8 +42,8 @@ IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
 
 @app.get("/health")
 def health():
-    """Hit this once or twice before a demo to wake the Render free-tier
-    instance up if it's spun down."""
+    """Hit this endpoint to wake the instance if the free tier has spun
+    it down."""
     return {"status": "ok"}
 
 
