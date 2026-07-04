@@ -9,7 +9,7 @@ uploaded, or a live web result. If it can't find a real source for something, it
 so instead of guessing.
 
 **Live app:** https://dvstudymate.netlify.app
-**API:** https://studymate-l8bp.onrender.com *(free-tier — the first request after a
+**Backend API:** https://studymate-l8bp.onrender.com *(free-tier — the first request after a
 period of inactivity can take 20–30s to wake it up)*
 
 ![StudyMate UI](docs/screenshot.png)
