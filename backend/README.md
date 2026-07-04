@@ -5,8 +5,9 @@ enforces the citation JSON contract structurally via Pydantic.
 
 ## Setup
 
+**Requires Python 3.14+.**
+
 ```bash
-Requires Python 3.14+.
 cd backend
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
@@ -26,9 +27,8 @@ uvicorn main:app --reload --port 8000
 - Health check: `GET http://localhost:8000/health`
 - Interactive docs: `http://localhost:8000/docs`
 
-Send Dhanya `http://localhost:8000` (or the Render URL once deployed) so
-she can point `App.jsx`'s fetch calls at it instead of the mocked
-`setTimeout`.
+Set `VITE_API_URL` in the frontend's `.env.local` to this URL (or the Render URL
+once deployed) to connect the frontend to this backend.
 
 ## Endpoints
 
