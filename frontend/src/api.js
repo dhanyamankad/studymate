@@ -109,11 +109,9 @@ export async function uploadFile(file) {
  * it. documentIds is optional; pass an array of file_ids from successfully
  * uploaded docs to scope retrieval, or omit/empty to search everything.
  *
- * Resolves to an exchange object matching pickMockExchange's return shape
- * (answer/citations/reasoningSteps), or resolves to null when the backend
- * signals insufficient:true — same "null means EmptyState" convention the
- * mock path already uses, so App.jsx doesn't need separate handling for
- * real vs. mock "no answer" cases.
+ * Resolves to an exchange object (answer/citations/reasoningSteps), or
+ * resolves to null when the backend signals insufficient:true — App.jsx
+ * treats a null result as "show EmptyState in its no-answer variant."
  */
 export async function queryBackend(question, webSearchEnabled, sessionId, documentIds) {
   if (!isBackendConfigured()) {

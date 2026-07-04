@@ -1,22 +1,33 @@
 /**
- * Zero-hallucination fallback. Deliberately quiet, not an error state:
- * dashed border, dimmed glow, honest copy instead of a red alert box.
+ * Two quiet states, both deliberately calm rather than a red alert box:
+ *  - 'no-answer' (default): zero-hallucination fallback — sources were
+ *    checked but nothing confirmed an answer.
+ *  - 'error': a real failure — backend unreachable, misconfigured, or the
+ *    request itself failed. Same visual language, different honest copy.
  */
-export default function EmptyState({ timestampLabel = 'End of Inquiry' }) {
+export default function EmptyState({ timestampLabel = 'End of Inquiry', variant = 'no-answer' }) {
+  const isError = variant === 'error'
+  const icon = isError ? 'cloud_off' : 'search_off'
+  const heading = isError
+    ? '"I couldn\'t reach StudyMate\'s backend."'
+    : '"Nothing in your sources or the web confirms this yet."'
+  const body = isError
+    ? 'Something went wrong talking to the server. Check your connection or try again in a moment.'
+    : 'Try rephrasing, or upload more material. My ink cannot trace a path where no record exists in the silent stacks.'
+
   return (
     <div className="relative w-full max-w-[600px] mx-auto text-center">
       <div className="parchment-grain relative bg-tertiary text-on-tertiary p-12 rounded-xl shadow-2xl border-2 border-dashed border-outline-variant/40 transition-all duration-700">
         <div className="absolute inset-0 bg-secondary-container/5 rounded-xl animate-pulse blur-3xl -z-10" />
         <div className="flex flex-col items-center gap-6">
           <div className="w-16 h-16 rounded-full bg-surface-container-lowest flex items-center justify-center mb-2">
-            <span className="material-symbols-outlined text-outline text-3xl">search_off</span>
+            <span className="material-symbols-outlined text-outline text-3xl">{icon}</span>
           </div>
           <h3 className="font-display-lg text-headline-md text-on-tertiary-container tracking-tight italic">
-            "Nothing in your sources or the web confirms this yet."
+            {heading}
           </h3>
           <p className="font-body-md text-on-tertiary-container/70 max-w-sm mx-auto leading-relaxed">
-            Try rephrasing, or upload more material. My ink cannot trace a path where no
-            record exists in the silent stacks.
+            {body}
           </p>
         </div>
 

@@ -6,7 +6,6 @@ import EmptyState from './components/EmptyState'
 import InputBar from './components/InputBar'
 import SourcesPanel from './components/SourcesPanel'
 import NotesPanel from './components/NotesPanel'
-import { pickMockExchange } from './mockData'
 import { queryBackend, uploadFile, isBackendConfigured } from './api'
 
 // Real documents come from actual uploads (see handleFilesAdded) — start
@@ -49,6 +48,10 @@ export default function App() {
   // genuine first load look like a faked/mocked response.
   const [exchange, setExchange] = useState(null)
   const [showEmpty, setShowEmpty] = useState(true)
+  // Which quiet-state copy EmptyState shows: 'no-answer' (checked sources,
+  // nothing confirmed an answer) or 'error' (backend unreachable/misconfigured/
+  // the request itself failed). See handleAsk.
+  const [emptyVariant, setEmptyVariant] = useState('no-answer')
   const [documents, setDocuments] = useState(INITIAL_DOCS)
   // Stable per-session id, required by Vanshi's backend to key conversation
   // memory (backend/rag.py: SESSIONS dict, keyed by this). Generated once on
@@ -124,40 +127,37 @@ export default function App() {
     setShowEmpty(false)
     setThinking(true)
 
-    // If VITE_API_URL is set, try Vanshi's real /query endpoint first.
-    // Any failure — not configured, network error, timeout, bad shape —
-    // falls through to the mock so the demo never breaks on a flaky or
-    // half-built backend. Only a successful, correctly-shaped response
-    // ever displays as if it were real.
-    if (isBackendConfigured()) {
-      try {
-        const readyFileIds = documents
-          .filter((d) => d.status === 'ready' && d.file_id)
-          .map((d) => d.file_id)
-        const result = await queryBackend(question, webSearchEnabled, sessionId, readyFileIds)
-        setThinking(false)
-        if (!result) {
-          setShowEmpty(true)
-        } else {
-          setExchange({ ...result, question })
-        }
-        return
-      } catch (err) {
-        console.warn('[studymate] backend query failed, falling back to mock:', err.message)
-        // fall through to mock below
-      }
+    if (!isBackendConfigured()) {
+      // No backend configured at all — this is a real misconfiguration,
+      // not something to paper over with a fake answer.
+      setThinking(false)
+      setEmptyVariant('error')
+      setShowEmpty(true)
+      return
     }
 
-    // Mock path — used when no backend is configured yet, or as a fallback.
-    setTimeout(() => {
+    try {
+      const readyFileIds = documents
+        .filter((d) => d.status === 'ready' && d.file_id)
+        .map((d) => d.file_id)
+      const result = await queryBackend(question, webSearchEnabled, sessionId, readyFileIds)
       setThinking(false)
-      const matched = pickMockExchange(question, webSearchEnabled)
-      if (!matched) {
+      if (!result) {
+        // Backend explicitly signaled insufficient sources — genuine
+        // zero-hallucination case, not a failure.
+        setEmptyVariant('no-answer')
         setShowEmpty(true)
       } else {
-        setExchange({ ...matched, question })
+        setExchange({ ...result, question })
       }
-    }, 1400)
+    } catch (err) {
+      // Real failure: network error, timeout, non-2xx, or malformed shape.
+      // Show it as an error rather than fabricating an answer.
+      console.warn('[studymate] backend query failed:', err.message)
+      setThinking(false)
+      setEmptyVariant('error')
+      setShowEmpty(true)
+    }
   }
 
   return (
@@ -169,6 +169,7 @@ export default function App() {
         onFilesAdded={handleFilesAdded}
         onNewResearch={() => {
           setShowEmpty(true)
+          setEmptyVariant('no-answer')
           setActiveTab('Focus')
           setExchange(null)
           setSessionId(crypto.randomUUID())
@@ -226,7 +227,7 @@ export default function App() {
             <NotesPanel />
           ) : (
             <div className="max-w-[800px] mx-auto px-page-margin pt-8 relative">
-              {showEmpty ? <EmptyState /> : <AnswerCard exchange={{ ...exchange, thinking }} />}
+              {showEmpty ? <EmptyState variant={emptyVariant} /> : <AnswerCard exchange={{ ...exchange, thinking }} />}
             </div>
           )}
         </div>
