@@ -52,8 +52,9 @@ once deployed) to connect the frontend to this backend.
 ## Notes / known trade-offs
 
 - Session memory is a plain in-memory dict (`rag.py: SESSIONS`) — resets
-  on every Render restart/redeploy. Fine for a hackathon demo; swap for
-  Redis if there's time.
+  on every Render restart/redeploy. Fine for a single instance; swap for
+  Redis if you need it to persist across restarts or scale to multiple
+  instances.
 - Chunking is a hand-rolled character splitter (`ingestion.py`). Swap in
   LangChain's `RecursiveCharacterTextSplitter` if you want smarter
   sentence/paragraph boundaries.
